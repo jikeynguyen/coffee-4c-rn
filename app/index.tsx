@@ -3,13 +3,12 @@ import { Text, View } from "react-native";
 export default function Index() {
   return (
     <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-      }}
+      className="flex-1 items-center justify-center bg-white"
+      style={{ padding: 20 }}
     >
-      <Text>Welcome to Movie App</Text>
+      <Text className="text-5xl text-primary font-semibold">
+        Welcome to Movie App
+      </Text>
     </View>
   );
 }
