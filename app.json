@@ -37,6 +37,19 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "783cf194-3689-43be-a38a-b5eea7c86b11"
+      }
+    },
+    "owner": "jikeynguyentn",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/783cf194-3689-43be-a38a-b5eea7c86b11"
     }
   }
 }
