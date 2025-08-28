@@ -37,9 +37,9 @@ export default function Cashflow({ data }: { data: PlanResult }) {
             orientation="horizontal"
             gutter={20}
             data={[
-              { name: "Chi phí", symbol: { fill: "blue" } },
-              { name: "Doanh thu", symbol: { fill: "green" } },
-              { name: "Kết quả", symbol: { fill: "orange" } },
+              { name: "Chi phí" },
+              { name: "Doanh thu" },
+              { name: "Kết quả" },
             ]}
           />
           <VictoryAxis tickValues={rows.map((r) => r.year)} />
