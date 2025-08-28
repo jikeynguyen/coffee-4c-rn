@@ -1,12 +1,10 @@
-import { View, Text } from "react-native";
-import React from "react";
+import { SafeAreaView } from "react-native-safe-area-context";
+import GuideChecklist from "../../components/GuideChecklist";
 
-const guide = () => {
+export default function GuideTab() {
   return (
-    <View>
-      <Text>guide</Text>
-    </View>
+    <SafeAreaView className="flex-1 bg-white">
+      <GuideChecklist />
+    </SafeAreaView>
   );
-};
-
-export default guide;
+}
