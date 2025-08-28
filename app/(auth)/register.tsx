@@ -3,13 +3,15 @@ import { Button } from 'native-base';
 import React, { useState } from 'react';
 import {
   Alert,
+  KeyboardAvoidingView,
+  Platform,
   TextInput as RNTextInput,
+  ScrollView,
   Text,
   TouchableOpacity,
   View
 } from 'react-native';
 import { api } from '../../lib/api';
-import { authStyles } from '../../styles/auth.styles';
 
 interface SignUpData {
   firstName: string;
@@ -35,7 +37,6 @@ const RegisterScreen = () => {
     confirmPassword: '',
   });
   const [loading, setLoading] = useState(false);
-  const styles = authStyles;
 
   const handleChange = (field: keyof SignUpData, value: string) => {
     setFormData({
@@ -97,160 +98,118 @@ const RegisterScreen = () => {
         }
         throw error;
       });
-      
-      if (response.status >= 200 && response.status < 300) {
+
+      if (response.data?.success) {
         Alert.alert(
-          'Success', 
-          'Account created successfully! Please log in with your credentials.',
+          'Registration Successful',
+          'Your account has been created successfully. Please log in.',
           [
             {
               text: 'OK',
-              onPress: () => router.replace('/(auth)/login')
-            }
+              onPress: () => router.replace('/(auth)/login'),
+            },
           ]
         );
-        // Add a fallback in case the alert is dismissed
-        router.replace('/(auth)/login');
       }
-    } catch (error: any) {
-      console.error('Signup error:', {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status,
-      });
+    } catch (error) {
+      console.error('Signup error:', error);
     } finally {
       setLoading(false);
     }
   };
 
+  const renderInputField = (
+    label: string,
+    field: keyof SignUpData,
+    options: {
+      secureTextEntry?: boolean;
+      keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad';
+      autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
+    } = {}
+  ) => (
+    <View className="mb-4 w-full max-w-[400px] self-center">
+      <Text className="text-xs text-gray-600 mb-1 font-medium">{label}</Text>
+      <RNTextInput
+        className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-3 text-gray-800 h-11 w-full"
+        value={formData[field] as string}
+        onChangeText={(text) => handleChange(field, text)}
+        placeholder={`Enter your ${label.toLowerCase()}`}
+        secureTextEntry={options.secureTextEntry}
+        keyboardType={options.keyboardType || 'default'}
+        autoCapitalize={options.autoCapitalize || 'none'}
+      />
+    </View>
+  );
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Create Account</Text>
-      
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>First Name</Text>
-        <RNTextInput
-          style={styles.input}
-          value={formData.firstName}
-          onChangeText={(text) => handleChange('firstName', text)}
-          placeholder="Enter your first name"
-          placeholderTextColor="#9ca3af"
-        />
-      </View>
+    <KeyboardAvoidingView 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      className="flex-1 bg-white"
+    >
+      <ScrollView 
+        contentContainerStyle={{ flexGrow: 1, padding: 20 }}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Text className="text-3xl font-bold mb-6 text-center text-gray-800">Create Account</Text>
+        
+        <View className="flex-row mb-4 w-full max-w-[400px] self-center">
+          <View className="flex-1 mr-2">
+            {renderInputField('First Name', 'firstName', { autoCapitalize: 'words' })}
+          </View>
+          <View className="flex-1 ml-2">
+            {renderInputField('Last Name', 'lastName', { autoCapitalize: 'words' })}
+          </View>
+        </View>
 
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>Last Name</Text>
-        <RNTextInput
-          style={styles.input}
-          value={formData.lastName}
-          onChangeText={(text) => handleChange('lastName', text)}
-          placeholder="Enter your last name"
-          placeholderTextColor="#9ca3af"
-        />
-      </View>
-      
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>Email</Text>
-        <RNTextInput
-          style={styles.input}
-          value={formData.email}
-          onChangeText={(text) => handleChange('email', text)}
-          placeholder="Enter your email"
-          placeholderTextColor="#9ca3af"
-          keyboardType="email-address"
-          autoCapitalize="none"
-        />
-      </View>
-      
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>Phone</Text>
-        <RNTextInput
-          style={styles.input}
-          value={formData.phone}
-          onChangeText={(text) => handleChange('phone', text)}
-          placeholder="Enter your phone number"
-          placeholderTextColor="#9ca3af"
-          keyboardType="phone-pad"
-        />
-      </View>
-      
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>Age</Text>
-        <RNTextInput
-          style={styles.input}
-          value={formData.age}
-          onChangeText={(text) => handleChange('age', text.replace(/[^0-9]/g, ''))}
-          placeholder="Enter your age"
-          placeholderTextColor="#9ca3af"
-          keyboardType="numeric"
-        />
-      </View>
+        {renderInputField('Email', 'email', { keyboardType: 'email-address' })}
+        {renderInputField('Phone', 'phone', { keyboardType: 'phone-pad' })}
+        {renderInputField('Age', 'age', { keyboardType: 'numeric' })}
+        
+        <View className="mb-4 w-full max-w-[400px] self-center">
+          <Text className="text-xs text-gray-600 mb-1 font-medium">Gender</Text>
+          <View className="flex-row">
+            {['Male', 'Female', 'Other'].map((gender) => (
+              <TouchableOpacity
+                key={gender}
+                className={`flex-1 items-center justify-center py-3 mx-1 rounded-lg border ${
+                  formData.gender === gender 
+                    ? 'bg-blue-50 border-blue-500' 
+                    : 'bg-gray-50 border-gray-200'
+                }`}
+                onPress={() => handleChange('gender', gender)}
+              >
+                <Text 
+                  className={`text-sm ${
+                    formData.gender === gender ? 'text-blue-600 font-semibold' : 'text-gray-700'
+                  }`}
+                >
+                  {gender}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
 
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>Gender</Text>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          <TouchableOpacity 
-            style={[
-              styles.radioButton, 
-              formData.gender === 'male' && styles.radioButtonSelected
-            ]}
-            onPress={() => handleChange('gender', 'male')}
-          >
-            <Text style={styles.radioText}>Male</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            style={[
-              styles.radioButton, 
-              formData.gender === 'female' && styles.radioButtonSelected
-            ]}
-            onPress={() => handleChange('gender', 'female')}
-          >
-            <Text style={styles.radioText}>Female</Text>
+        {renderInputField('Password', 'password', { secureTextEntry: true })}
+        {renderInputField('Confirm Password', 'confirmPassword', { secureTextEntry: true })}
+
+        <Button
+          onPress={handleSubmit}
+          isLoading={loading}
+          className="bg-sky-500 rounded-lg h-12 justify-center mt-2 mb-4 w-full max-w-[400px] self-center"
+          _text={{ className: "text-white font-semibold text-base" }}
+        >
+          {loading ? 'Creating Account...' : 'Create Account'}
+        </Button>
+
+        <View className="flex-row justify-center mt-2 mb-5">
+          <Text className="text-gray-600 text-xs">Already have an account? </Text>
+          <TouchableOpacity onPress={() => router.push('/(auth)/login')}>
+            <Text className="text-sky-500 font-semibold text-xs">Log in</Text>
           </TouchableOpacity>
         </View>
-      </View>
-      
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>Password</Text>
-        <RNTextInput
-          style={styles.input}
-          value={formData.password}
-          onChangeText={(text) => handleChange('password', text)}
-          placeholder="Create a password"
-          placeholderTextColor="#9ca3af"
-          secureTextEntry
-        />
-      </View>
-      
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>Confirm Password</Text>
-        <RNTextInput
-          style={styles.input}
-          value={formData.confirmPassword}
-          onChangeText={(text) => handleChange('confirmPassword', text)}
-          placeholder="Confirm your password"
-          placeholderTextColor="#9ca3af"
-          secureTextEntry
-        />
-      </View>
-      
-      <Button 
-        style={styles.button} 
-        onPress={handleSubmit}
-        isLoading={loading}
-        isLoadingText="Creating Account..."
-        _text={styles.buttonText}
-      >
-        Create Account
-      </Button>
-      
-      <View style={styles.signupContainer}>
-        <Text style={styles.signupText}>Already have an account? </Text>
-        <TouchableOpacity onPress={() => router.push('/(auth)/login')}>
-          <Text style={[styles.signupText, styles.signupLink]}>Login</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 

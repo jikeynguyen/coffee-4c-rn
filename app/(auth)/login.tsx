@@ -4,13 +4,13 @@ import React, { useState } from 'react';
 import {
   Alert,
   TextInput as RNTextInput,
+  ScrollView,
   Text,
   TouchableOpacity,
   View
 } from 'react-native';
 import { api } from '../../lib/api';
 import { saveTokens } from '../../lib/session';
-import { authStyles } from '../../styles/auth.styles';
 
 const isValidUsername = (username: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -30,7 +30,6 @@ const LoginScreen = () => {
     password: '',
   });
   const [loading, setLoading] = useState(false);
-  const styles = authStyles;
 
   const handleChange = (field: keyof LoginData, value: string) => {
     setFormData({
@@ -95,60 +94,53 @@ const LoginScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Welcome Back</Text>
-      
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>Username</Text>
-        <RNTextInput
-          style={styles.input}
-          placeholder="Email"
-          placeholderTextColor="#9ca3af"
-          value={formData.username}
-          onChangeText={(text) => handleChange('username', text)}
-          autoCapitalize="none"
-          autoCorrect={false}
-          keyboardType="email-address"
-        />
+    <ScrollView contentContainerStyle={{ flexGrow: 1 }} className="flex-1 bg-white p-5">
+      <View className="flex-1 justify-center">
+        <Text className="text-3xl font-bold mb-5 text-center text-gray-800">Welcome Back</Text>
+        
+        <View className="w-full max-w-[400px] self-center mb-4">
+          <Text className="text-xs text-gray-600 mb-1 font-medium">Email or Phone</Text>
+          <RNTextInput
+            className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-3 text-gray-800 h-11 w-full"
+            value={formData.username}
+            onChangeText={(text) => handleChange('username', text)}
+            placeholder="Enter your email or phone"
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+        </View>
+
+        <View className="w-full max-w-[400px] self-center mb-6">
+          <Text className="text-xs text-gray-600 mb-1 font-medium">Password</Text>
+          <RNTextInput
+            className="bg-gray-50 border border-gray-200 rounded-lg px-3 py-3 text-gray-800 h-11 w-full"
+            value={formData.password}
+            onChangeText={(text) => handleChange('password', text)}
+            placeholder="Enter your password"
+            secureTextEntry
+          />
+          <TouchableOpacity className="self-end mt-2">
+            <Text className="text-blue-500 text-sm">Forgot Password?</Text>
+          </TouchableOpacity>
+        </View>
+
+        <Button
+          onPress={handleSubmit}
+          isLoading={loading}
+          className="bg-sky-500 rounded-lg h-12 justify-center mt-2 mb-4"
+          _text={{ className: "text-white font-semibold text-base" }}
+        >
+          {loading ? 'Logging in...' : 'Login'}
+        </Button>
+
+        <View className="flex-row justify-center mt-4 mb-5">
+          <Text className="text-gray-600 text-xs">Don't have an account? </Text>
+          <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
+            <Text className="text-sky-500 font-semibold text-xs">Sign up</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-      
-      <View style={styles.formGroup}>
-        <Text style={styles.label}>Password</Text>
-        <RNTextInput
-          style={styles.input}
-          placeholder="Enter your password"
-          placeholderTextColor="#9ca3af"
-          value={formData.password}
-          onChangeText={(text) => handleChange('password', text)}
-          secureTextEntry
-          autoCapitalize="none"
-        />
-      </View>
-      
-      <TouchableOpacity 
-        style={styles.forgotPassword}
-        onPress={() => {}}
-      >
-        <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
-      </TouchableOpacity>
-      
-      <Button 
-        style={styles.button} 
-        onPress={handleSubmit}
-        isLoading={loading}
-        isLoadingText="Logging in..."
-        _text={styles.buttonText}
-      >
-        Login
-      </Button>
-      
-      <View style={styles.signupContainer}>
-        <Text style={styles.signupText}>Don't have an account? </Text>
-        <TouchableOpacity onPress={() => router.push('/(auth)/register')}>
-          <Text style={[styles.signupText, styles.signupLink]}>Sign Up</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+    </ScrollView>
   );
 };
 
