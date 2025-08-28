@@ -7,7 +7,7 @@ export default function Index() {
       style={{ padding: 20 }}
     >
       <Text className="text-5xl text-primary font-semibold">
-        Welcome to Movie App
+        Welcome to coffee-4c App
       </Text>
     </View>
   );

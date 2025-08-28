@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "movie",
-    "slug": "movie",
+    "name": "coffee-4c",
+    "slug": "coffee-4c",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "movie",
+    "scheme": "coffee-4c",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
