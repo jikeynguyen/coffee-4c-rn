@@ -27,16 +27,7 @@ const Layout = () => {
           ),
         }}
       />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: "Profile",
-          headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <AntDesign name="user" color={color} size={size} />
-          ),
-        }}
-      />
+
       <Tabs.Screen
         name="supplies"
         options={{
@@ -64,6 +55,16 @@ const Layout = () => {
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
             <AntDesign name="filetext1" color={color} size={size} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: "Profile",
+          headerShown: false,
+          tabBarIcon: ({ color, size }) => (
+            <AntDesign name="user" color={color} size={size} />
           ),
         }}
       />
