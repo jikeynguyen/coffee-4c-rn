@@ -1,4 +1,3 @@
-// components/PlanForm.tsx
 import { ScrollView, View, Text, TextInput, Pressable } from "react-native";
 import { useMemo, useState } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
