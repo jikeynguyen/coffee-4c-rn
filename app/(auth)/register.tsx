@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
-import { Alert, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { z } from 'zod';
 import { AuthForm, type FormField } from '../../components/AuthForm';
 import { api } from '../../lib/api';
@@ -13,6 +13,7 @@ export const registerSchema = z.object({
     .string()
     .min(10, 'Số điện thoại phải có ít nhất 10 số')
     .regex(/^\+?[0-9\s-]+$/, 'Số điện thoại không hợp lệ'),
+  gender: z.string().min(1, 'Vui lòng chọn giới tính'),
   password: z.string().min(6, 'Mật khẩu phải có ít nhất 6 ký tự'),
   confirmPassword: z.string().min(6, 'Xác nhận mật khẩu không khớp'),
 }).refine((data) => data.password === data.confirmPassword, {
@@ -53,6 +54,17 @@ const registerFields: FormField<RegisterForm>[] = [
     keyboardType: 'phone-pad',
   },
   {
+    name: 'gender',
+    label: 'Giới tính',
+    type: 'select',
+    placeholder: 'Chọn giới tính',
+    options: [
+      { label: 'nam', value: 'male' },
+      { label: 'nữ', value: 'female' },
+      { label: 'khác', value: 'other' }
+    ]
+  },
+  {
     name: 'password',
     label: 'Mật khẩu',
     placeholder: 'Nhập mật khẩu',
@@ -75,13 +87,21 @@ const RegisterScreen = () => {
   const handleRegister = async (data: RegisterForm) => {
     try {
       setLoading(true);
-      await api.post('/auth/register', {
-        first_name: data.firstName,
-        last_name: data.lastName,
+      const payload = {
+        firstName: data.firstName,
+        lastName: data.lastName,
         email: data.email,
         phone: data.phone,
         password: data.password,
-      });
+        confirmPassword: data.confirmPassword,
+        username: data.email,
+        age: 18, 
+        gender: data.gender,
+      };
+      console.log('Sending payload:', payload);
+      
+      const response = await api.post('/users/signUp', payload);
+      console.log('Registration response:', response.data);
       
       Alert.alert(
         'Đăng ký thành công',
@@ -93,11 +113,12 @@ const RegisterScreen = () => {
           },
         ]
       );
-    } catch (error) {
+    } catch (error: any) {
       console.error('Registration error:', error);
+      console.error('Error response:', error.response?.data);
       Alert.alert(
         'Lỗi đăng ký',
-        'Đã có lỗi xảy ra khi đăng ký. Vui lòng thử lại sau.'
+        error.response?.data?.message || 'Đã có lỗi xảy ra khi đăng ký. Vui lòng kiểm tra lại thông tin.'
       );
     } finally {
       setLoading(false);
@@ -114,23 +135,25 @@ const RegisterScreen = () => {
   );
 
   return (
-    <View className="flex-1 justify-center p-4 bg-white">
-      <View className="mb-6">
-        <Text className="text-2xl font-bold text-center mb-2">Tạo tài khoản</Text>
-        <Text className="text-center text-gray-600">
-          Điền thông tin để tạo tài khoản mới
-        </Text>
-      </View>
+    <ScrollView className="flex-1 bg-white">
+      <View className="flex-1 justify-center p-4">
+        <View className="mb-6">
+          <Text className="text-2xl font-bold text-center mb-2">Tạo tài khoản</Text>
+          <Text className="text-center text-gray-600">
+            Điền thông tin để tạo tài khoản mới
+          </Text>
+        </View>
 
-      <AuthForm
-        schema={registerSchema}
-        fields={registerFields}
-        onSubmit={handleRegister}
-        submitButtonText="Đăng ký"
-        submitButtonLoadingText="Đang xử lý..."
-        footerComponent={<Footer />}
-      />
-    </View>
+        <AuthForm
+          schema={registerSchema}
+          fields={registerFields}
+          onSubmit={handleRegister}
+          submitButtonText="Đăng ký"
+          submitButtonLoadingText="Đang xử lý..."
+          footerComponent={<Footer />}
+        />
+      </View>
+    </ScrollView>
   );
 };
 

@@ -1,8 +1,9 @@
+import { Picker } from '@react-native-picker/picker';
 import React, { useState } from 'react';
-import { TextInput as RNTextInput, Text, TouchableOpacity, View } from 'react-native';
+import { TextInput as Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { z, type ZodType } from 'zod';
 
-type FieldType = 'text' | 'email' | 'password' | 'tel' | 'number';
+type FieldType = 'text' | 'email' | 'password' | 'tel' | 'number' | 'select';
 
 export interface FormField<T> {
   name: keyof T;
@@ -12,6 +13,7 @@ export interface FormField<T> {
   secureTextEntry?: boolean;
   autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
   keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad' | 'number-pad';
+  options?: { label: string; value: string }[];
 }
 
 interface AuthFormProps<T> {
@@ -93,7 +95,22 @@ export function AuthForm<T>({
       {fields.map((field) => (
         <View key={field.name as string} className="w-full max-w-[400px] self-center mb-4">
           <Text className="text-gray-700 mb-1">{field.label}</Text>
-          <RNTextInput {...getInputProps(field)} />
+          {field.type === 'select' ? (
+            <View className="border border-gray-300 rounded-lg mb-1">
+              <Picker
+                selectedValue={formData[field.name] as string || ''}
+                onValueChange={(value) => handleChange(field.name, value)}
+                style={{ height: 50, padding: 0, margin: 0 }}
+              >
+                <Picker.Item label={field.placeholder || 'Chọn một lựa chọn'} value="" />
+                {field.options?.map((option) => (
+                  <Picker.Item key={option.value} label={option.label} value={option.value} />
+                ))}
+              </Picker>
+            </View>
+          ) : (
+            <TextInput {...getInputProps(field)} />
+          )}
           {errors[field.name] && (
             <Text className="text-red-500 text-xs mt-1">
               {errors[field.name] as string}

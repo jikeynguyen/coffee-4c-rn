@@ -50,17 +50,24 @@ const LoginScreen = () => {
   const handleLogin = async (data: LoginForm) => {
     try {
       setLoading(true);
-      const response = await api.post('/auth/login', data);
-      await saveTokens(
-        response.data.access_token,
-        response.data.refresh_token,
-      );
-      router.replace('/(tabs)');
-    } catch (error) {
-      console.error('Login error:', error);
+      const response = await api.post('/auth/user', {
+        username: data.username, 
+        password: data.password 
+      });
+  
+      if (response.data && response.data.data) {
+        const { accessToken, refreshToken } = response.data.data;
+        await saveTokens(accessToken, refreshToken);
+        Alert.alert('Đăng nhập thành công');
+        router.replace('/(tabs)');
+      } else {
+        Alert.alert('Lỗi đăng nhập', 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin đăng nhập.');
+      }
+    } catch (error: any) {
+      console.error('Login error details:', error.response?.data || error.message);
       Alert.alert(
         'Lỗi đăng nhập',
-        'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin đăng nhập.'
+        error.response?.data?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin đăng nhập.'
       );
     } finally {
       setLoading(false);
