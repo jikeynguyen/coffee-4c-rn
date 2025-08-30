@@ -122,7 +122,8 @@ export function AuthForm<T>({
       <TouchableOpacity
         onPress={handleSubmit}
         disabled={isSubmitting}
-        className="bg-blue-500 p-3 rounded-lg items-center mt-4"
+        style={{ backgroundColor: '#4A6A4F' }}
+        className="p-3 rounded-lg items-center mt-4"
       >
         <Text className="text-white font-medium">
           {isSubmitting ? submitButtonLoadingText : submitButtonText}

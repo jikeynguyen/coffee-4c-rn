@@ -82,11 +82,9 @@ const registerFields: FormField<RegisterForm>[] = [
 
 const RegisterScreen = () => {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
 
   const handleRegister = async (data: RegisterForm) => {
     try {
-      setLoading(true);
       const payload = {
         firstName: data.firstName,
         lastName: data.lastName,
@@ -120,8 +118,6 @@ const RegisterScreen = () => {
         'Lỗi đăng ký',
         error.response?.data?.message || 'Đã có lỗi xảy ra khi đăng ký. Vui lòng kiểm tra lại thông tin.'
       );
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -129,7 +125,7 @@ const RegisterScreen = () => {
     <View className="flex-row justify-center mt-4">
       <Text className="text-gray-600">Đã có tài khoản? </Text>
       <TouchableOpacity onPress={() => router.replace('/login')}>
-        <Text className="text-blue-500 font-medium">Đăng nhập ngay</Text>
+      <Text style={{ color: '#4A6A4F' }} className="text-lg font-bold text-center mb-2">Đăng nhập</Text>
       </TouchableOpacity>
     </View>
   );
@@ -138,7 +134,7 @@ const RegisterScreen = () => {
     <ScrollView className="flex-1 bg-white">
       <View className="flex-1 justify-center p-4">
         <View className="mb-6">
-          <Text className="text-2xl font-bold text-center mb-2">Tạo tài khoản</Text>
+          <Text style={{ color: '#4A6A4F' }} className="text-2xl font-bold text-center mb-2">Tạo tài khoản</Text>
           <Text className="text-center text-gray-600">
             Điền thông tin để tạo tài khoản mới
           </Text>
@@ -149,7 +145,6 @@ const RegisterScreen = () => {
           fields={registerFields}
           onSubmit={handleRegister}
           submitButtonText="Đăng ký"
-          submitButtonLoadingText="Đang xử lý..."
           footerComponent={<Footer />}
         />
       </View>

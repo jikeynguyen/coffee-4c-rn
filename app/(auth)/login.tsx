@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { router, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, Text, TouchableOpacity, View } from 'react-native';
 import { z } from 'zod';
@@ -45,11 +45,9 @@ const loginFields: FormField<LoginForm>[] = [
 
 const LoginScreen = () => {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (data: LoginForm) => {
     try {
-      setLoading(true);
       const response = await api.post('/auth/user', {
         username: data.username, 
         password: data.password 
@@ -69,25 +67,37 @@ const LoginScreen = () => {
         'Lỗi đăng nhập',
         error.response?.data?.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin đăng nhập.'
       );
-    } finally {
-      setLoading(false);
     }
   };
+
+  
+  const Header = () => (
+    <View className="absolute top-10 left-0 p-4 z-10">
+      <TouchableOpacity 
+        onPress={() => router.back()}
+        className="p-2"
+      >
+        <Text style={{ color: '#4A6A4F' }} className="font-bold">Quay lại</Text>
+      </TouchableOpacity>
+    </View>
+  );
+
 
   const Footer = () => (
     <View className="flex-row justify-center mt-4">
       <Text className="text-gray-600">Chưa có tài khoản? </Text>
       <TouchableOpacity onPress={() => router.push('/register')}>
-        <Text className="text-blue-500 font-medium">Đăng ký ngay</Text>
+        <Text style={{ color: '#4A6A4F' }} className="font-bold">Đăng ký ngay</Text>
       </TouchableOpacity>
     </View>
   );
 
   return (
     <View className="flex-1 justify-center p-4 bg-white">
+      <Header />
       <View className="mb-8">
-        <Text className="text-2xl font-bold text-center mb-2">Đăng nhập</Text>
-        <Text className="text-center text-gray-600">
+        <Text style={{ color: '#4A6A4F' }} className="text-2xl font-bold text-center mb-2">Đăng nhập</Text>
+        <Text style={{ color: '#4A6A4F' }} className="text-center text-gray-600">
           Vui lòng đăng nhập để tiếp tục
         </Text>
       </View>
