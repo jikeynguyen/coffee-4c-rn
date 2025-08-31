@@ -127,7 +127,7 @@ const RegisterScreen = () => {
           onPress={() => router.back()}
           className="p-2"
         >
-          <Text style={{ color: '#4A6A4F' }} className="font-bold">Quay lại</Text>
+          <Text style={{ color: 'green' }} className="font-bold">Quay lại</Text>
         </TouchableOpacity>
       </View>
     );
@@ -136,7 +136,7 @@ const RegisterScreen = () => {
     <View className="flex-row justify-center mt-4">
       <Text className="text-gray-600">Đã có tài khoản? </Text>
       <TouchableOpacity onPress={() => router.replace('/login')}>
-      <Text style={{ color: '#4A6A4F' }} className="text-lg font-bold text-center mb-2">Đăng nhập</Text>
+      <Text style={{ color: 'green' }} className="text-lg font-bold text-center mb-2">Đăng nhập</Text>
       </TouchableOpacity>
     </View>
   );
@@ -146,7 +146,7 @@ const RegisterScreen = () => {
       <View className="flex-1 justify-center p-4">
         <Header />
         <View className="mt-20 mb-6">
-          <Text style={{ color: '#4A6A4F' }} className="text-2xl font-bold text-center mb-2">Tạo tài khoản</Text>
+          <Text style={{ color: 'green' }} className="text-2xl font-bold text-center mb-2">Tạo tài khoản</Text>
           <Text className="text-center text-gray-600">
             Điền thông tin để tạo tài khoản mới
           </Text>

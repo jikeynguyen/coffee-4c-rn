@@ -77,7 +77,7 @@ const LoginScreen = () => {
         onPress={() => router.back()}
         className="p-2"
       >
-        <Text style={{ color: '#4A6A4F' }} className="font-bold">Quay lại</Text>
+        <Text style={{ color: 'green' }} className="font-bold">Quay lại</Text>
       </TouchableOpacity>
     </View>
   );
@@ -87,7 +87,7 @@ const LoginScreen = () => {
     <View className="flex-row justify-center mt-4">
       <Text className="text-gray-600">Chưa có tài khoản? </Text>
       <TouchableOpacity onPress={() => router.push('/register')}>
-        <Text style={{ color: '#4A6A4F' }} className="font-bold">Đăng ký ngay</Text>
+        <Text style={{ color: 'green' }} className="font-bold">Đăng ký ngay</Text>
       </TouchableOpacity>
     </View>
   );
@@ -96,8 +96,8 @@ const LoginScreen = () => {
     <View className="flex-1 justify-center p-4 bg-white">
       <Header />
       <View className="mb-8">
-        <Text style={{ color: '#4A6A4F' }} className="text-2xl font-bold text-center mb-2">Đăng nhập</Text>
-        <Text style={{ color: '#4A6A4F' }} className="text-center text-gray-600">
+        <Text style={{ color: 'green' }} className="text-2xl font-bold text-center mb-2">Đăng nhập</Text>
+        <Text style={{ color: 'green' }} className="text-center text-gray-600">
           Vui lòng đăng nhập để tiếp tục
         </Text>
       </View>

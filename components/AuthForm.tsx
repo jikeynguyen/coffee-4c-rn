@@ -74,7 +74,6 @@ export function AuthForm<T>({
       await onSubmit(formData as T);
     } catch (error) {
       console.error('Form submission error:', error);
-      // Handle API errors here if needed
     } finally {
       setIsSubmitting(false);
     }
@@ -122,7 +121,7 @@ export function AuthForm<T>({
       <TouchableOpacity
         onPress={handleSubmit}
         disabled={isSubmitting}
-        style={{ backgroundColor: '#4A6A4F' }}
+        style={{ backgroundColor: 'green' }}
         className="p-3 rounded-lg items-center mt-4"
       >
         <Text className="text-white font-medium">

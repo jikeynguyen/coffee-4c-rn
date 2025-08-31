@@ -26,8 +26,8 @@ function TWButton({
     variant === "solid"
       ? "text-white font-semibold"
       : variant === "outline"
-      ? "text-[#4A6A4F] font-semibold"
-      : "text-[#4A6A4F] font-semibold";
+      ? "text-[green] font-semibold"
+      : "text-[green] font-semibold";
   return (
     <Pressable 
       style={styles}
