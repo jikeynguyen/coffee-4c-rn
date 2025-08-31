@@ -1,6 +1,6 @@
 import { Picker } from '@react-native-picker/picker';
 import React, { useState } from 'react';
-import { TextInput as Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { z, type ZodType } from 'zod';
 
 type FieldType = 'text' | 'email' | 'password' | 'tel' | 'number' | 'select';

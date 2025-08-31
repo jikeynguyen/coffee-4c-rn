@@ -121,6 +121,17 @@ const RegisterScreen = () => {
     }
   };
 
+  const Header = () => (
+      <View className="absolute top-10 left-0 p-4 z-10">
+        <TouchableOpacity 
+          onPress={() => router.back()}
+          className="p-2"
+        >
+          <Text style={{ color: '#4A6A4F' }} className="font-bold">Quay lại</Text>
+        </TouchableOpacity>
+      </View>
+    );
+
   const Footer = () => (
     <View className="flex-row justify-center mt-4">
       <Text className="text-gray-600">Đã có tài khoản? </Text>
@@ -133,7 +144,8 @@ const RegisterScreen = () => {
   return (
     <ScrollView className="flex-1 bg-white">
       <View className="flex-1 justify-center p-4">
-        <View className="mb-6">
+        <Header />
+        <View className="mt-20 mb-6">
           <Text style={{ color: '#4A6A4F' }} className="text-2xl font-bold text-center mb-2">Tạo tài khoản</Text>
           <Text className="text-center text-gray-600">
             Điền thông tin để tạo tài khoản mới
