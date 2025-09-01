@@ -1,3 +1,4 @@
+// components/GuideChecklist.tsx
 import { useEffect, useRef, useState } from "react";
 import {
   View,
@@ -7,24 +8,32 @@ import {
   useWindowDimensions,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { GUIDE_YEARS } from "@/constants/guide";
-
-const KEY = "guide_checked_v1";
+import { GUIDE_YEARS_DEFAULT, type GuideYear } from "@/constants/guide";
 
 type CheckedMap = Record<string, boolean>;
 
-export default function GuideChecklist() {
+export default function GuideChecklist({
+  years,
+  storageKey = "guide_checked_v2",
+}: {
+  years?: GuideYear[];
+  storageKey?: string;
+}) {
+  const data = years ?? GUIDE_YEARS_DEFAULT;
   const { width } = useWindowDimensions();
   const ref = useRef<ScrollView>(null);
   const [idx, setIdx] = useState(0);
   const [checked, setChecked] = useState<CheckedMap>({});
 
   useEffect(() => {
-    AsyncStorage.getItem(KEY).then((s) => setChecked(s ? JSON.parse(s) : {}));
-  }, []);
+    AsyncStorage.getItem(storageKey).then((s) =>
+      setChecked(s ? JSON.parse(s) : {})
+    );
+  }, [storageKey]);
+
   useEffect(() => {
-    AsyncStorage.setItem(KEY, JSON.stringify(checked));
-  }, [checked]);
+    AsyncStorage.setItem(storageKey, JSON.stringify(checked));
+  }, [checked, storageKey]);
 
   const toggle = (id: string) => setChecked((p) => ({ ...p, [id]: !p[id] }));
 
@@ -68,13 +77,13 @@ export default function GuideChecklist() {
           setIdx(Math.round(e.nativeEvent.contentOffset.x / width))
         }
       >
-        {GUIDE_YEARS.map((block) => (
+        {data.map((block) => (
           <View key={block.year} style={{ width }}>
             {/* mỗi năm bọc thêm vertical scroll */}
             <ScrollView
               style={{ flex: 1 }}
               contentContainerStyle={{ padding: 16, paddingBottom: 40 }}
-              showsVerticalScrollIndicator={true}
+              showsVerticalScrollIndicator
             >
               <View className="bg-white border border-gray-200 rounded-2xl p-4">
                 <Text className="text-lg font-semibold mb-1">

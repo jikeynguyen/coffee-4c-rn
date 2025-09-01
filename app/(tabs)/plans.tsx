@@ -8,16 +8,18 @@ import { PlanForm } from "@/schemas/plan";
 import { planStore } from "@/state/planStore";
 import ProjectOverview from "@/components/ProjectOverview";
 import Cashflow from "@/components/Cashflow";
+import { saveBuildParamsFromForm } from "@/utils/guideLink";
 
 export default function PlansTab() {
   const [summary, setSummary] = useState<ReturnType<typeof calcPlan> | null>(
     null
   );
 
-  const onSubmit: SubmitHandler<PlanForm> = (v) => {
+  const onSubmit: SubmitHandler<PlanForm> = async (v) => {
     const result = calcPlan({ areaHa: v.area, densityPerHa: v.density });
     planStore.set(result);
     setSummary(result);
+    await saveBuildParamsFromForm(v);
   };
 
   return (

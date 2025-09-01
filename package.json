@@ -15,13 +15,13 @@
     "update:prod": "eas update --branch production --message \"prod\"",
     "build:android": "eas build -p android --profile preview",
     "build:ios": "eas build -p ios --profile preview"
-
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
     "@hookform/resolvers": "^5.2.1",
     "@react-native-async-storage/async-storage": "^2.2.0",
     "@react-native-community/datetimepicker": "8.4.1",
+    "@react-native-picker/picker": "^2.11.1",
     "@react-navigation/bottom-tabs": "^7.3.10",
     "@react-navigation/elements": "^2.3.8",
     "@react-navigation/native": "^7.1.6",
@@ -34,12 +34,14 @@
     "expo-image": "~2.4.0",
     "expo-image-picker": "~16.1.4",
     "expo-linking": "~7.1.7",
+    "expo-location": "^18.1.6",
     "expo-router": "~5.1.5",
     "expo-secure-store": "^14.2.3",
     "expo-splash-screen": "~0.30.10",
     "expo-status-bar": "~2.2.3",
     "expo-symbols": "~0.4.5",
     "expo-system-ui": "~5.0.11",
+    "expo-updates": "~0.28.17",
     "expo-web-browser": "~14.2.0",
     "native-base": "^3.4.28",
     "nativewind": "^4.1.23",
@@ -53,17 +55,14 @@
     "react-native-reanimated": "~3.17.4",
     "react-native-safe-area-context": "^5.4.0",
     "react-native-screens": "~4.11.1",
+    "react-native-svg": "15.11.2",
     "react-native-vector-icons": "^10.3.0",
     "react-native-web": "~0.20.0",
     "react-native-webview": "13.13.5",
     "sub-vn": "^0.0.2",
     "tailwindcss": "^3.4.17",
-
     "victory-native": "^36.6.11",
-    "zod": "^4.1.4",
-    "react-native-svg": "15.11.2",
-    "expo-updates": "~0.28.17"
-
+    "zod": "^4.1.4"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",

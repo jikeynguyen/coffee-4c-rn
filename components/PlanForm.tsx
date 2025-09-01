@@ -1,8 +1,9 @@
 import { ScrollView, View, Text, TextInput, Pressable } from "react-native";
 import { useMemo, useState } from "react";
-import { Controller, SubmitHandler, useForm } from "react-hook-form";
+import { Controller, useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Dropdown } from "react-native-element-dropdown";
+import * as Location from "expo-location";
 import {
   getProvinces,
   getDistrictsByProvinceCode,
@@ -11,32 +12,51 @@ import {
   Ward,
 } from "sub-vn";
 import {
-  CertKey,
   CERTS,
   COFFEE_VARIETIES,
   MONTHS,
   SOIL_TYPES,
+  type CertKey,
 } from "@/constants/plans";
-import { PlanForm, planSchema } from "@/schemas/plan";
+import { planSchema, type PlanForm } from "@/schemas/plan";
+
+const parseNumber = (t: string) => {
+  const n = Number(String(t).replace(/,/g, "."));
+  return Number.isFinite(n) ? n : 0;
+};
+
+// map khóa UI -> giá trị chuẩn theo schema
+const KEY2CANON: Record<CertKey, PlanForm["certifications"][number]> = {
+  "4C": "4C",
+  organic: "Organic",
+  vietgap: "VietGAP",
+  ggap: "GlobalGAP",
+  flo: "FLO",
+  utz: "UTZ",
+  rfa: "RA",
+};
 
 function CertChips({
   value,
   onChange,
 }: {
-  value: CertKey[];
-  onChange: (arr: CertKey[]) => void;
+  value: PlanForm["certifications"];
+  onChange: (arr: PlanForm["certifications"]) => void;
 }) {
   return (
     <View className="flex-row flex-wrap gap-2">
       {CERTS.map((c) => {
-        const active = value.includes(c.key);
+        const canon = KEY2CANON[c.key];
+        const active = value.includes(canon);
         return (
           <Pressable
             key={c.key}
             onPress={() => {
               const next = active
-                ? (value.filter((k) => k !== c.key) as CertKey[])
-                : ([...value, c.key] as CertKey[]);
+                ? (value.filter(
+                    (v) => v !== canon
+                  ) as PlanForm["certifications"])
+                : ([...value, canon] as PlanForm["certifications"]);
               onChange(next);
             }}
             className={`px-3 py-2 rounded-xl border ${
@@ -57,11 +77,6 @@ function CertChips({
   );
 }
 
-const parseNumber = (t: string) => {
-  const n = Number(String(t).replace(/,/g, "."));
-  return Number.isFinite(n) ? n : 0;
-};
-
 export default function PlanFormView({
   onSubmit,
 }: {
@@ -70,6 +85,7 @@ export default function PlanFormView({
   const provinces = useMemo(() => getProvinces(), []);
   const [districts, setDistricts] = useState<District[]>([]);
   const [wards, setWards] = useState<Ward[]>([]);
+  const [gpsLoading, setGpsLoading] = useState(false);
 
   const {
     control,
@@ -78,7 +94,8 @@ export default function PlanFormView({
     watch,
     formState: { isSubmitting },
   } = useForm<PlanForm>({
-    resolver: zodResolver(planSchema),
+    // ép đủ 3 generic để đồng bộ input/output với PlanForm
+    resolver: zodResolver<PlanForm, any, PlanForm>(planSchema),
     defaultValues: {
       area: 1,
       density: 1666,
@@ -86,8 +103,14 @@ export default function PlanFormView({
       district: "",
       ward: "",
       soilType: SOIL_TYPES[0],
+      ph: 5.5,
+      annualRain: 1600,
+      tmean: 24,
+      rh: 80,
+      lat: undefined,
+      lng: undefined,
       plantingMonth: 8,
-      certifications: [],
+      certifications: [] as PlanForm["certifications"],
       coffeeVariety: COFFEE_VARIETIES[0],
     },
   });
@@ -102,10 +125,24 @@ export default function PlanFormView({
     setDistricts(getDistrictsByProvinceCode(code));
     setWards([]);
   };
+
   const onChangeDistrict = (code: string) => {
     setValue("district", code);
     setValue("ward", "");
     setWards(getWardsByDistrictCode(code));
+  };
+
+  const getGPS = async () => {
+    try {
+      setGpsLoading(true);
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") return;
+      const p = await Location.getCurrentPositionAsync({});
+      setValue("lat", p.coords.latitude);
+      setValue("lng", p.coords.longitude);
+    } finally {
+      setGpsLoading(false);
+    }
   };
 
   return (
@@ -161,11 +198,10 @@ export default function PlanFormView({
           )}
         />
 
+        {/* Khu vực */}
         <Text className="text-sm text-gray-700 mt-2 mb-1">
           Khu vực canh tác
         </Text>
-
-        {/* Tỉnh */}
         <Controller
           control={control}
           name="province"
@@ -196,8 +232,6 @@ export default function PlanFormView({
             </>
           )}
         />
-
-        {/* Huyện */}
         <Controller
           control={control}
           name="district"
@@ -229,8 +263,6 @@ export default function PlanFormView({
             </>
           )}
         />
-
-        {/* Xã */}
         <Controller
           control={control}
           name="ward"
@@ -263,6 +295,53 @@ export default function PlanFormView({
           )}
         />
 
+        {/* GPS */}
+        <View className="flex-row items-center justify-between mt-2">
+          <Text className="text-sm text-gray-700">Toạ độ (GPS)</Text>
+          <Pressable
+            onPress={getGPS}
+            className="px-3 py-2 rounded-xl bg-gray-100 border border-gray-300"
+          >
+            <Text className="text-gray-800 text-sm">
+              {gpsLoading ? "Đang lấy..." : "Lấy GPS"}
+            </Text>
+          </Pressable>
+        </View>
+        <View className="flex-row gap-2 mt-2">
+          <View className="flex-1">
+            <Text className="text-xs text-gray-600 mb-1">Lat</Text>
+            <Controller
+              control={control}
+              name="lat"
+              render={({ field: { value, onChange } }) => (
+                <TextInput
+                  className="border border-gray-300 rounded-xl px-3 py-3"
+                  keyboardType="decimal-pad"
+                  value={value === undefined ? "" : String(value)}
+                  onChangeText={(t) => onChange(parseNumber(t))}
+                  placeholder="VD: 12.50"
+                />
+              )}
+            />
+          </View>
+          <View className="flex-1">
+            <Text className="text-xs text-gray-600 mb-1">Lng</Text>
+            <Controller
+              control={control}
+              name="lng"
+              render={({ field: { value, onChange } }) => (
+                <TextInput
+                  className="border border-gray-300 rounded-xl px-3 py-3"
+                  keyboardType="decimal-pad"
+                  value={value === undefined ? "" : String(value)}
+                  onChangeText={(t) => onChange(parseNumber(t))}
+                  placeholder="VD: 107.80"
+                />
+              )}
+            />
+          </View>
+        </View>
+
         {/* Loại đất */}
         <Text className="text-sm text-gray-700 mt-2 mb-1">Loại đất</Text>
         <Controller
@@ -293,6 +372,95 @@ export default function PlanFormView({
                 </Text>
               )}
             </>
+          )}
+        />
+
+        {/* pH */}
+        <Text className="text-sm text-gray-700 mt-2 mb-1">pH đất</Text>
+        <Controller
+          control={control}
+          name="ph"
+          render={({ field: { value, onChange }, fieldState: { error } }) => (
+            <>
+              <TextInput
+                className="border border-gray-300 rounded-xl px-3 py-3 mb-1"
+                keyboardType="decimal-pad"
+                value={String(value ?? "")}
+                onChangeText={(t) => onChange(parseNumber(t))}
+                placeholder="VD: 5.5"
+              />
+              {error && (
+                <Text className="text-red-600 text-xs mb-2">
+                  {error.message}
+                </Text>
+              )}
+            </>
+          )}
+        />
+
+        {/* Mưa năm */}
+        <Text className="text-sm text-gray-700 mt-2 mb-1">Mưa năm (mm)</Text>
+        <Controller
+          control={control}
+          name="annualRain"
+          render={({ field: { value, onChange }, fieldState: { error } }) => (
+            <>
+              <TextInput
+                className="border border-gray-300 rounded-xl px-3 py-3 mb-1"
+                keyboardType="number-pad"
+                value={String(value ?? "")}
+                onChangeText={(t) => onChange(parseNumber(t))}
+                placeholder="VD: 1600"
+              />
+              {error && (
+                <Text className="text-red-600 text-xs mb-2">
+                  {error.message}
+                </Text>
+              )}
+            </>
+          )}
+        />
+
+        {/* Nhiệt độ TB */}
+        <Text className="text-sm text-gray-700 mt-2 mb-1">
+          Nhiệt độ TB (°C)
+        </Text>
+        <Controller
+          control={control}
+          name="tmean"
+          render={({ field: { value, onChange }, fieldState: { error } }) => (
+            <>
+              <TextInput
+                className="border border-gray-300 rounded-xl px-3 py-3 mb-1"
+                keyboardType="decimal-pad"
+                value={String(value ?? "")}
+                onChangeText={(t) => onChange(parseNumber(t))}
+                placeholder="VD: 24"
+              />
+              {error && (
+                <Text className="text-red-600 text-xs mb-2">
+                  {error.message}
+                </Text>
+              )}
+            </>
+          )}
+        />
+
+        {/* RH */}
+        <Text className="text-sm text-gray-700 mt-2 mb-1">
+          Độ ẩm không khí RH (%)
+        </Text>
+        <Controller
+          control={control}
+          name="rh"
+          render={({ field: { value, onChange } }) => (
+            <TextInput
+              className="border border-gray-300 rounded-xl px-3 py-3 mb-1"
+              keyboardType="number-pad"
+              value={value === undefined ? "" : String(value)}
+              onChangeText={(t) => onChange(parseNumber(t))}
+              placeholder="VD: 80"
+            />
           )}
         />
 
@@ -336,10 +504,7 @@ export default function PlanFormView({
           control={control}
           name="certifications"
           render={({ field: { value, onChange } }) => (
-            <CertChips
-              value={value as CertKey[]}
-              onChange={onChange as (v: CertKey[]) => void}
-            />
+            <CertChips value={value} onChange={onChange} />
           )}
         />
 
