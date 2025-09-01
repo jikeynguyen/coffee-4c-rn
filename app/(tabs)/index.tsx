@@ -1,8 +1,8 @@
-import { SafeAreaView } from "react-native-safe-area-context";
-import { StatusBar } from "expo-status-bar";
-import { ScrollView, View, Text, Pressable } from "react-native";
-import { Href, useRouter } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { Href, useRouter } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { Pressable, ScrollView, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 function TWButton({
   title,
@@ -15,19 +15,25 @@ function TWButton({
   variant?: "solid" | "outline" | "ghost";
   leftIcon?: keyof typeof Ionicons.glyphMap;
 }) {
-  const base = "flex-row items-center justify-center rounded-2xl px-4 py-3";
+  const base = "flex-row items-center justify-center rounded-2xl";
   const styles =
     variant === "solid"
-      ? "bg-brand"
+      ? { backgroundColor: '#4A6A4F' }
       : variant === "outline"
-      ? "border border-gray-300"
-      : "";
+      ? { borderWidth: 1, borderColor: '#4A6A4F' }
+      : {};
   const text =
     variant === "solid"
       ? "text-white font-semibold"
-      : "text-gray-800 font-semibold";
+      : variant === "outline"
+      ? "text-[green] font-semibold"
+      : "text-[green] font-semibold";
   return (
-    <Pressable className={`${base} ${styles}`} onPress={onPress}>
+    <Pressable 
+      style={styles}
+      className={`${base} ${variant === 'ghost' ? '' : 'px-4 py-3'} ${variant === 'solid' ? 'bg-brand' : variant === 'outline' ? 'border border-gray-300' : ''}`} 
+      onPress={onPress}
+    >
       {leftIcon ? (
         <Ionicons name={leftIcon} size={18} style={{ marginRight: 8 }} />
       ) : null}
@@ -55,12 +61,14 @@ export default function HomePage() {
           <View className="flex-row items-center">
             <Ionicons name="leaf-outline" size={22} />
             <Text className="ml-2 text-base font-semibold">
-              Nông trại 4C • PDA
-            </Text>
-            <Text className="ml-2 px-2 py-0.5 rounded-md bg-green-100 text-green-700 text-xs">
-              v1
+              Nông trại 4C
             </Text>
           </View>
+          <TWButton
+            title="Tạo tài khoản"
+            variant="ghost"
+            onPress={() => router.push("/(auth)/register" as Href)}
+          />
           <TWButton
             title="Đăng nhập"
             variant="ghost"
@@ -77,23 +85,6 @@ export default function HomePage() {
             Lập kế hoạch trồng trọt, quản lý vật tư, ghi nhật ký, phân tích tài
             chính và truy xuất nguồn gốc.
           </Text>
-          <View className="flex-row gap-3 mt-2">
-            <View className="flex-1">
-              <TWButton
-                title="Bắt đầu"
-                leftIcon="rocket-outline"
-                onPress={() => router.push("/(auth)/register" as Href)}
-              />
-            </View>
-            <View className="flex-1">
-              <TWButton
-                title="Tôi đã có tài khoản"
-                variant="outline"
-                leftIcon="log-in-outline"
-                onPress={() => router.push("/(auth)/login" as Href)}
-              />
-            </View>
-          </View>
         </View>
 
         {/* Preview */}
@@ -136,13 +127,6 @@ export default function HomePage() {
           <Text className="text-sm text-gray-600">
             Sẵn sàng bắt đầu canh tác thông minh?
           </Text>
-          <View className="w-full">
-            <TWButton
-              title="Tạo tài khoản"
-              leftIcon="sparkles-outline"
-              onPress={() => router.push("/(auth)/register" as Href)}
-            />
-          </View>
         </View>
       </ScrollView>
     </SafeAreaView>
