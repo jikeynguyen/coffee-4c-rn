@@ -1,4 +1,4 @@
-import { Slot, Stack } from "expo-router";
+import { Slot } from "expo-router";
 import "./global.css";
 import { NativeBaseProvider } from "native-base";
 import { SafeAreaProvider } from "react-native-safe-area-context";

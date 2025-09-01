@@ -1,7 +1,7 @@
 import React from "react";
 import _layout from "../_layout";
 import { Tabs } from "expo-router";
-import { AntDesign } from "@expo/vector-icons";
+import { AntDesign, Feather } from "@expo/vector-icons";
 
 const Layout = () => {
   return (
@@ -18,12 +18,12 @@ const Layout = () => {
       />
 
       <Tabs.Screen
-        name="dashboard"
+        name="plans"
         options={{
-          title: "Dashboard",
+          title: "Plans",
           headerShown: false,
           tabBarIcon: ({ color, size }) => (
-            <AntDesign name="dashboard" color={color} size={size} />
+            <Feather name="edit-3" color="#000" size={24} />
           ),
         }}
       />
