@@ -1,7 +1,7 @@
-// app/index.tsx
 import { Href, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import {
+  Image,
   ImageBackground,
   Pressable,
   ScrollView,
@@ -10,10 +10,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Ionicons } from "@expo/vector-icons";
-
-const HERO_BG =
-  "https://images.unsplash.com/photo-1671413945540-eaca7f4257f3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb2ZmZWUlMjBwbGFudGF0aW9uJTIwbW91bnRhaW5zJTIwbGFuZHNjYXBlfGVufDF8fHx8MTc1NjcxMTkyM3ww&ixlib=rb-4.1.0&q=80&w=1080";
-const heroImg = require("/Users/jikeynguyen/Working/coffee-4c/coffee-4c-rn/assets/images/hero.png");
+import { HERO_BG, HERO_LOCAL } from "@/constants/heroImage";
 
 function TWButton({
   title,
@@ -101,30 +98,32 @@ export default function HomePage() {
 
           {/* Hero copy + CTA */}
           <View className="mt-2">
-            <Text className="text-white text-3xl font-bold">
+            <Text className="text-white text-4xl font-bold">
               Ứng dụng quản lý nông trại thông minh
             </Text>
-            <Text className="text-white/90 mt-2">
-              Lập kế hoạch trồng trọt, quản lý vật tư, nhật ký và truy xuất.
+            <Text className="text-white/90 mt-4 text-lg">
+              Lập kế hoạch trồng trọt, quản lý vật tư, cẩm nang canh tác và xuất
+              lô.
             </Text>
-            <ImageBackground
-              source={heroImg}
-              className="w-full h-full"
-              resizeMode="contain"
-              accessibilityLabel="PDA App preview"
-            >
-              <View className="flex-row gap-3 mt-4 items-center">
-                <TWButton
-                  title="Bắt đầu lập kế hoạch"
-                  onPress={() => router.push("/plans" as Href)}
-                />
-                <TWButton
-                  title="Xem báo cáo"
-                  variant="outline"
-                  onPress={() => router.push("/report" as Href)}
-                />
-              </View>
-            </ImageBackground>
+            <View className="p-4 mt-4">
+              <Image
+                source={HERO_LOCAL}
+                className="w-full h-60 rounded-lg"
+                resizeMode="cover"
+              />
+            </View>
+
+            <View className="flex-row gap-3 mt-4 items-center">
+              <TWButton
+                title="Bắt đầu lập kế hoạch"
+                onPress={() => router.push("/plans" as Href)}
+              />
+              <TWButton
+                title="Xem báo cáo"
+                variant="outline"
+                onPress={() => router.push("/report" as Href)}
+              />
+            </View>
           </View>
 
           {/* Highlights */}

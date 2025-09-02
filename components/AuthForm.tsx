@@ -1,20 +1,33 @@
-import { Picker } from '@react-native-picker/picker';
-import React, { useState } from 'react';
-import { Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { z, type ZodType } from 'zod';
+import { Picker } from "@react-native-picker/picker";
+import React, { useState } from "react";
+import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { z, type ZodType } from "zod";
 
-type FieldType = 'text' | 'email' | 'password' | 'tel' | 'number' | 'select';
+type FieldType = "text" | "email" | "password" | "tel" | "number" | "select";
 
-export interface FormField<T> {
+type BaseField<T> = {
   name: keyof T;
   label: string;
   placeholder: string;
   type: FieldType;
   secureTextEntry?: boolean;
-  autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
-  keyboardType?: 'default' | 'email-address' | 'numeric' | 'phone-pad' | 'number-pad';
+  autoCapitalize?: "none" | "sentences" | "words" | "characters";
+  keyboardType?:
+    | "default"
+    | "email-address"
+    | "numeric"
+    | "phone-pad"
+    | "number-pad";
   options?: { label: string; value: string }[];
-}
+};
+
+type FieldRow<T> = {
+  type: "row";
+  key: string;
+  fields: BaseField<T>[];
+};
+
+export type FormField<T> = BaseField<T> | FieldRow<T>;
 
 interface AuthFormProps<T> {
   schema: ZodType<T>;
@@ -23,6 +36,7 @@ interface AuthFormProps<T> {
   submitButtonText: string;
   submitButtonLoadingText?: string;
   footerComponent?: React.ReactNode;
+  submitColor?: string; // default green
 }
 
 export function AuthForm<T>({
@@ -30,18 +44,19 @@ export function AuthForm<T>({
   fields,
   onSubmit,
   submitButtonText,
-  submitButtonLoadingText = 'Đang xử lý...',
+  submitButtonLoadingText = "Đang xử lý...",
   footerComponent,
+  submitColor = "green",
 }: AuthFormProps<T>) {
   const [formData, setFormData] = useState<Partial<T>>({});
   const [errors, setErrors] = useState<Partial<Record<keyof T, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const isRow = (f: FormField<T>): f is FieldRow<T> =>
+    (f as any).type === "row";
+
   const handleChange = (field: keyof T, value: string) => {
-    setFormData({
-      ...formData,
-      [field]: value,
-    });
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const validateForm = (): boolean => {
@@ -51,89 +66,125 @@ export function AuthForm<T>({
       return true;
     } catch (err) {
       if (err instanceof z.ZodError) {
-        const newErrors: Record<string, string> = {};
+        const newErrors: Partial<Record<keyof T, string>> = {};
         err.issues.forEach((issue) => {
-          const path = issue.path[0];
-          if (path && typeof path === 'string') {
-            newErrors[path] = issue.message;
-          }
+          const key = issue.path[0] as keyof T | undefined;
+          if (key) newErrors[key] = issue.message;
         });
-        setErrors(newErrors as Partial<Record<keyof T, string>>);
+        setErrors(newErrors);
       }
       return false;
     }
   };
 
   const handleSubmit = async () => {
-    if (!validateForm()) {
-      return;
-    }
-
+    if (!validateForm()) return;
     try {
       setIsSubmitting(true);
       await onSubmit(formData as T);
-    } catch (error) {
-      console.error('Form submission error:', error);
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const getInputProps = (field: FormField<T>) => ({
-    value: formData[field.name] as string || '',
-    onChangeText: (text: string) => handleChange(field.name, text),
-    placeholder: field.placeholder,
-    secureTextEntry: field.secureTextEntry,
-    autoCapitalize: field.autoCapitalize,
-    keyboardType: field.keyboardType,
-    className: 'w-full p-3 border border-gray-300 rounded-lg mb-1',
-  });
+  const renderInput = (field: BaseField<T>) => {
+    const baseClass = "w-full px-3 py-3 rounded-xl mb-1  border-2 text-white";
+    if (field.type === "select") {
+      return (
+        <View className="rounded-xl mb-1  border-2 border-white/70">
+          <Picker
+            selectedValue={(formData[field.name] as string) || ""}
+            onValueChange={(value) => handleChange(field.name, value)}
+            style={{ height: 50, padding: 0, margin: 0, color: "white" }}
+            dropdownIconColor="white"
+          >
+            <Picker.Item
+              label={field.placeholder || "Chọn một lựa chọn"}
+              value=""
+              color="#d1d5db" // text-gray-300
+            />
+            {field.options?.map((opt) => (
+              <Picker.Item
+                key={opt.value}
+                label={opt.label}
+                value={opt.value}
+              />
+            ))}
+          </Picker>
+        </View>
+      );
+    }
+    return (
+      <TextInput
+        value={(formData[field.name] as string) || ""}
+        onChangeText={(text) => handleChange(field.name, text)}
+        placeholder={field.placeholder}
+        placeholderTextColor="#d1d5db" // gray-300
+        secureTextEntry={field.secureTextEntry}
+        autoCapitalize={field.autoCapitalize}
+        keyboardType={field.keyboardType}
+        className={`${baseClass} border-white/70`}
+      />
+    );
+  };
 
-  return (
-    <View className="w-full">
-      {fields.map((field) => (
-        <View key={field.name as string} className="w-full max-w-[400px] self-center mb-4">
-          <Text className="text-gray-700 mb-1">{field.label}</Text>
-          {field.type === 'select' ? (
-            <View className="border border-gray-300 rounded-lg mb-1">
-              <Picker
-                selectedValue={formData[field.name] as string || ''}
-                onValueChange={(value) => handleChange(field.name, value)}
-                style={{ height: 50, padding: 0, margin: 0 }}
-              >
-                <Picker.Item label={field.placeholder || 'Chọn một lựa chọn'} value="" />
-                {field.options?.map((option) => (
-                  <Picker.Item key={option.value} label={option.label} value={option.value} />
-                ))}
-              </Picker>
-            </View>
-          ) : (
-            <TextInput {...getInputProps(field)} />
-          )}
-          {errors[field.name] && (
-            <Text className="text-red-500 text-xs mt-1">
-              {errors[field.name] as string}
+  const renderBaseField = (field: BaseField<T>) => (
+    <View
+      key={field.name as string}
+      className="w-full max-w-[400px] self-center mb-4"
+    >
+      <Text className="mb-1 text-white">{field.label}</Text>
+      {renderInput(field)}
+      {errors[field.name] && (
+        <Text className="text-red-400 text-xs mt-1">
+          {errors[field.name] as string}
+        </Text>
+      )}
+    </View>
+  );
+
+  const renderRow = (row: FieldRow<T>, idx: number) => (
+    <View
+      key={row.key || idx}
+      className="flex-row w-full max-w-[400px] self-center mb-4"
+    >
+      {row.fields.map((child, i) => (
+        <View
+          key={(child.name as string) + i}
+          className={`flex-1 ${i === 0 ? "mr-3" : ""}`}
+        >
+          <Text className="mb-1 text-white">{child.label}</Text>
+          {renderInput(child)}
+          {errors[child.name] && (
+            <Text className="text-red-400 text-xs mt-1">
+              {errors[child.name] as string}
             </Text>
           )}
         </View>
       ))}
+    </View>
+  );
+
+  return (
+    <View className="w-full">
+      {fields.map((f, idx) =>
+        "type" in f && (f as any).type === "row"
+          ? renderRow(f as FieldRow<T>, idx)
+          : renderBaseField(f as BaseField<T>)
+      )}
 
       <TouchableOpacity
         onPress={handleSubmit}
         disabled={isSubmitting}
-        style={{ backgroundColor: 'green' }}
-        className="p-3 rounded-lg items-center mt-4"
+        style={{ backgroundColor: submitColor }}
+        className="p-3 rounded-xl items-center mt-4"
       >
         <Text className="text-white font-medium">
           {isSubmitting ? submitButtonLoadingText : submitButtonText}
         </Text>
       </TouchableOpacity>
 
-      {footerComponent && (
-        <View className="mt-4">
-          {footerComponent}
-        </View>
-      )}
+      {footerComponent && <View className="mt-4">{footerComponent}</View>}
     </View>
   );
 }
