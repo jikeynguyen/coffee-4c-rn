@@ -4,8 +4,9 @@ import { getAccessToken } from "./session";
 export const api = axios.create({
   baseURL:
     process.env.EXPO_PUBLIC_API_BASE_URL ||
-    // "https://coffee-4c-be.onrender.com/",
+    "https://coffee-4c-be.onrender.com/" ||
     "http://localhost:3000",
+
   timeout: 15000,
 });
 

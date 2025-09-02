@@ -136,13 +136,13 @@ export default function HomePage() {
               <View className="flex-1 items-center space-y-2">
                 <Ionicons name="analytics-outline" size={22} color="#fff" />
                 <Text className="text-center text-sm text-white">
-                  Dòng tiền & báo cáo
+                  Lập kế hoạch canh tác
                 </Text>
               </View>
               <View className="flex-1 items-center space-y-2">
-                <Ionicons name="qr-code-outline" size={22} color="#fff" />
+                <Ionicons name="rocket-outline" size={22} color="#fff" />
                 <Text className="text-center text-sm text-white">
-                  Truy xuất nguồn gốc
+                  Đầu ra đạt chuẩn
                 </Text>
               </View>
               <View className="flex-1 items-center space-y-2">
