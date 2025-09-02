@@ -36,7 +36,7 @@ interface AuthFormProps<T> {
   submitButtonText: string;
   submitButtonLoadingText?: string;
   footerComponent?: React.ReactNode;
-  submitColor?: string; // default green
+  submitColor?: string;
 }
 
 export function AuthForm<T>({
@@ -101,7 +101,7 @@ export function AuthForm<T>({
             <Picker.Item
               label={field.placeholder || "Chọn một lựa chọn"}
               value=""
-              color="#d1d5db" // text-gray-300
+              color="#d1d5db"
             />
             {field.options?.map((opt) => (
               <Picker.Item
@@ -119,7 +119,7 @@ export function AuthForm<T>({
         value={(formData[field.name] as string) || ""}
         onChangeText={(text) => handleChange(field.name, text)}
         placeholder={field.placeholder}
-        placeholderTextColor="#d1d5db" // gray-300
+        placeholderTextColor="#d1d5db"
         secureTextEntry={field.secureTextEntry}
         autoCapitalize={field.autoCapitalize}
         keyboardType={field.keyboardType}
