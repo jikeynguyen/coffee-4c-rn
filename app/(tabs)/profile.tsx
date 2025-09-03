@@ -1,40 +1,67 @@
+import { api } from '@/lib/api';
 import { Ionicons } from '@expo/vector-icons';
-import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useEffect, useState } from 'react';
+import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { getAccessToken } from '@/lib/session';
+
+interface UserData {
+  lastName: string;
+  email: string;
+}
 
 const Profile = () => {
-  // Mock user data - replace with your actual user data
-  const userData = {
-    name: 'John Doe',
-    email: 'john.doe@example.com',
-  };
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const token = await getAccessToken();
+        const res = await api.get('/auth/me');
+        
+        if (res.data && res.data.data) {
+          setUserData(res.data.data);
+        } else {
+          console.warn('Unexpected response format:', res.data);
+        }
+      } catch (err) {
+        setError('Failed to fetch user data');
+        console.error(err);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  if (!userData) {
+    return (
+      <View className="flex-1 justify-center items-center bg-gray-50">
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View className="flex-1 justify-center items-center bg-gray-50">
+        <Text className="text-red-500">{error}</Text>
+      </View>
+    );
+  }
 
   return (
     <ScrollView className="flex-1 bg-gray-50">
-      {/* Header */}
-      <View className="h-40 relative">
-        <View className="justify-center items-center -bottom-16">
-          <View className="w-32 h-32 rounded-full bg-white p-1">
-            <Image
-              source={{ uri: 'https://randomuser.me/api/portraits/men/1.jpg' }}
-              className="w-full h-full rounded-full"
-            />
-          </View>
-        </View>
-      </View>
-
-      {/* Profile Info */}
       <View className="mt-20 px-5">
         <View className="flex-row justify-between items-center">
           <View>
-            <Text className="text-2xl font-bold text-gray-900">{userData.name}</Text>
-            <Text className="text-gray-500">{userData.email}</Text>
+            <Text className="text-2xl font-bold text-gray-900">{userData?.lastName || 'User'}</Text>
+            <Text className="text-gray-500">{userData?.email || ''}</Text>
           </View>
           <TouchableOpacity className="bg-brand px-4 py-2 rounded-full">
             <Text className="text-white font-medium">Edit Profile</Text>
           </TouchableOpacity>
         </View>
 
-        {/* Menu Items */}
         <View className="mt-6 bg-white rounded-xl p-4 space-y-4">
           <TouchableOpacity className="flex-row items-center justify-between py-3 border-b border-gray-100">
             <View className="flex-row items-center">
