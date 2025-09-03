@@ -1,12 +1,12 @@
 import { api } from '@/lib/api';
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { getAccessToken } from '@/lib/session';
 
 interface UserData {
-  name: string;
+  lastName: string;
   email: string;
-  avatar?: string;
 }
 
 const Profile = () => {
@@ -16,11 +16,17 @@ const Profile = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
+        const token = await getAccessToken();
         const res = await api.get('/auth/me');
-        setUserData(res.data);
+        
+        if (res.data && res.data.data) {
+          setUserData(res.data.data);
+        } else {
+          console.warn('Unexpected response format:', res.data);
+        }
       } catch (err) {
-        console.error('Failed to fetch user data:', err);
-        setError('Failed to load profile data');
+        setError('Failed to fetch user data');
+        console.error(err);
       }
     };
 
@@ -45,11 +51,10 @@ const Profile = () => {
 
   return (
     <ScrollView className="flex-1 bg-gray-50">
-
       <View className="mt-20 px-5">
         <View className="flex-row justify-between items-center">
           <View>
-            <Text className="text-2xl font-bold text-gray-900">{userData?.name || 'User'}</Text>
+            <Text className="text-2xl font-bold text-gray-900">{userData?.lastName || 'User'}</Text>
             <Text className="text-gray-500">{userData?.email || ''}</Text>
           </View>
           <TouchableOpacity className="bg-brand px-4 py-2 rounded-full">
