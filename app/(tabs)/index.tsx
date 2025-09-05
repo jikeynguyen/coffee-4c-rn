@@ -1,5 +1,11 @@
+import LessonCard from "@/components/LessonCard";
+import { HERO_BG, HERO_LOCAL } from "@/constants/heroImage";
+import { Flashcard, flashcards } from "@/constants/lessons";
+import { getRandomFlashcard } from "@/utils/flashcardUtils";
+import { Ionicons } from "@expo/vector-icons";
 import { Href, useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
+import { useCallback, useEffect, useState } from "react";
 import {
   Image,
   ImageBackground,
@@ -9,8 +15,6 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Ionicons } from "@expo/vector-icons";
-import { HERO_BG, HERO_LOCAL } from "@/constants/heroImage";
 
 function TWButton({
   title,
@@ -56,6 +60,36 @@ function TWButton({
 
 export default function HomePage() {
   const router = useRouter();
+  const [currentCardIndex, setCurrentCardIndex] = useState(0);
+  const [flashcardDeck, setFlashcardDeck] = useState<Flashcard[]>([]);
+
+  // Khởi tạo ngẫu nhiên 5 flashcard theo bộ chứng nhận đã chọn
+  const initializeDeck = useCallback(() => {
+    const deck: Flashcard[] = [];
+    for (let i = 0; i < 5; i++) {
+      const card = getRandomFlashcard(flashcards);
+      if (!deck.some(c => c.id === card.id)) {
+        deck.push(card);
+      } else {
+        i--;
+      }
+    }
+    setFlashcardDeck(deck);
+    setCurrentCardIndex(0);
+  }, []);
+
+  // Khởi tạo deck
+  useEffect(() => {
+    initializeDeck();
+  }, []);
+
+  const handleNextCard = useCallback(() => {
+    if (currentCardIndex < flashcardDeck.length - 1) {
+      setCurrentCardIndex(prev => prev + 1);
+    } else {
+      initializeDeck();
+    }
+  }, [currentCardIndex, flashcardDeck.length, initializeDeck]);
 
   return (
     <ImageBackground
@@ -69,7 +103,6 @@ export default function HomePage() {
       />
       <SafeAreaView edges={["top", "left", "right"]} className="flex-1">
         <StatusBar style="light" />
-
         <ScrollView
           contentContainerStyle={{ padding: 16, paddingBottom: 28 }}
           showsVerticalScrollIndicator={false}
@@ -155,6 +188,22 @@ export default function HomePage() {
                 </Text>
               </View>
             </View>
+          </View>
+
+          {/* Flashcard Section */}
+          <View className="mb-6">
+            {flashcardDeck.length > 0 && (
+              <View className="w-full">
+                <View className="flex-row justify-between items-center mb-4">
+                </View>
+                <View className="bg-white rounded-2xl">
+                  <LessonCard 
+                    flashcard={flashcardDeck[currentCardIndex]} 
+                    onNext={handleNextCard} 
+                  />
+                </View>
+              </View>
+            )}
           </View>
 
           {/* CTA cuối */}
